@@ -1,0 +1,61 @@
+<app-loading-mask *ngIf="loadingMask"></app-loading-mask>
+
+<div class="wrapper">
+  <p-toast position="top-right"></p-toast>
+  <div class="p-grid" style="min-height: 100vh;">
+    <div class="p-col-4">
+      <div class="leftDiv">
+        <!-- <h1 class="productText">Distribution Center</h1> -->
+        <img
+          src="assets/images/Demigods_DistributionCenter_Logo.png"
+          style="margin-top: 20px;"
+        />
+        <!-- <h2 class="byText">by</h2>
+        <h1 class="demigodText">Demigod's</h1> -->
+        <h3 class="helloUserText">Hello User !</h3>
+        <div class="p-col">
+          <div class="ui-inputgroup">
+            <span class="ui-inputgroup-addon"
+              ><i class="pi pi-user" style="line-height: 1.25;"></i
+            ></span>
+            <input
+              type="text"
+              pInputText
+              placeholder="Username"
+              style="width: 90%;"
+              [(ngModel)]="username"
+            />
+          </div>
+        </div>
+        <div class="p-col">
+          <div class="ui-inputgroup">
+            <span class="ui-inputgroup-addon"
+              ><i class="pi pi-key" style="line-height: 1.25;"></i
+            ></span>
+            <input
+              type="password"
+              pInputText
+              placeholder="Password"
+              style="width: 90%;"
+              [(ngModel)]="password"
+            />
+          </div>
+        </div>
+        <br />
+        <button
+          pButton
+          type="button"
+          label="Login"
+          class="ui-button-raised"
+          style="width: 95%;"
+          (click)="login()"
+        ></button>
+      </div>
+    </div>
+    <div class="p-col">
+      <div class="lottieView">
+        <ng-lottie width="550px" height="550px" [options]="lottieConfig"></ng-lottie>
+      </div>
+    </div>
+  </div>
+</div>
