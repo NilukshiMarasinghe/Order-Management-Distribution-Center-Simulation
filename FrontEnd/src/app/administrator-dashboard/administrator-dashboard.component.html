@@ -1,0 +1,333 @@
+<app-top-bar></app-top-bar>
+<app-loading-mask *ngIf="loadingMask"></app-loading-mask>
+
+<div class="container">
+  <p-toast position="top-right"></p-toast>
+  <h2 class="headerText">Administrator - Dashboard</h2>
+
+  <div class="content">
+    <div class="p-grid">
+      <div class="p-col-2"></div>
+      <div class="p-col-4">
+        <button
+          pButton
+          type="button"
+          label="View Distribution Centre Floor Plan"
+          class="distributionBtn"
+          (click)="generateFloorPlan()"
+        ></button>
+      </div>
+      <div class="p-col-4">
+        <button
+          pButton
+          type="button"
+          label="View Product Placement"
+          class="productPlacement"
+          style="width: 95%;"
+        ></button>
+      </div>
+      <div class="p-col-2"></div>
+    </div>
+    <br />
+    <div class="p-grid">
+      <!-- <div class="p-col-1"></div> -->
+      <div class="p-col-3" style="background-color: #f3c623;">
+        <h3 class="contentHeaders">Generated Order List</h3>
+        <div class="orderListDiv">
+          <button
+            pButton
+            *ngFor="let order of orders"
+            type="button"
+            label="{{ order.id }}"
+            class="ui-button-secondary ordrBtn"
+            (click)="getOrderDetail(order)"
+          ></button>
+        </div>
+
+        <!-- <p-listbox [options]="cities1" (click)="getOrderDet()" [style]="{'width':'100%','max-height':'500px'}"></p-listbox> -->
+      </div>
+      <div class="p-col-1"></div>
+      <div class="p-col-3" style="background-color: #f3c623;">
+        <h3 class="contentHeaders">Worker Details</h3>
+        <div class="p-grid">
+          <div class="p-col-5">
+            <h4 class="contentHeaders">Picker Details</h4>
+            <div class="workerListDiv">
+              <button
+                pButton
+                *ngFor="let picker of pickers"
+                type="button"
+                label="{{ picker.name }}"
+                class="ui-button-secondary ordrBtn"
+                (click)="getWorkerDetailByIDPicker(picker.name)"
+              ></button>
+            </div>
+          </div>
+          <div class="p-col-2"></div>
+          <div class="p-col-5">
+            <h4 class="contentHeaders">Packer Details</h4>
+            <div class="workerListDiv">
+              <button
+                pButton
+                type="button"
+                *ngFor="let packer of packers"
+                label="{{ packer.name }}"
+                class="ui-button-secondary ordrBtn"
+                (click)="
+                  getWorkerDetailByIDPacker(packer.name);
+                  getTasksListForPacker(packer.id)
+                "
+              ></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-1"></div>
+      <div class="p-col-4" style="background-color: #f3c623;">
+        <h3 class="contentHeaders">Overall Performance</h3>
+        <p-calendar
+          [(ngModel)]="overallDateRange"
+          selectionMode="range"
+          [readonlyInput]="true"
+          [style]="{ width: '100%' }"
+          [inputStyle]="{ width: '100%' }"
+        ></p-calendar>
+        <br />
+        <br />
+        <button
+          pButton
+          type="button"
+          label="Get Performance for Selected Dates"
+          class="ordrBtn"
+          (click)="getOverallPerformance()"
+        ></button>
+        <!-- <div class="p-grid">
+          <div class="p-col-6">
+            <p-calendar
+              [(ngModel)]="overallDateRange"
+              selectionMode="range"
+              [readonlyInput]="true"
+            ></p-calendar>
+          </div>
+          <div class="p-col-6">
+            <button
+              pButton
+              type="button"
+              label="Search"
+              class="ui-button-secondary ordrBtn"
+              (click)="getOverallPerformance()"
+            ></button>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- The Order Details Modal -->
+  <div id="orderDetails" class="modal">
+    <div class="modal-header-lg">
+      <span class="close" (click)="closeOrderDetails()">&times;</span>
+      <h2>
+        Order - {{ orderDet.id }} &nbsp;&nbsp;&nbsp;/ &nbsp;&nbsp;&nbsp;
+        <span style="color: red;">Status - {{ orderDet.status }}</span>
+      </h2>
+    </div>
+
+    <!-- Modal content -->
+    <div class="modal-content-lg">
+      <div class="p-grid">
+        <div class="p-col-7">
+          <canvas id="orderFloor" style="width: 100%; height: 100%;"></canvas>
+        </div>
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+          <h4>Packing Counter No - {{ packingCounter }}</h4>
+          <hr />
+          <h4>Items :</h4>
+          <p *ngFor="let items of orderDet.items">
+            Name : {{ items.product.name }} | Location :
+            {{ items.product.location }}
+          </p>
+          <hr />
+          <h5>Worker Details</h5>
+          <div class="p-grid">
+            <div class="p-col-5" *ngFor="let workers of orderWorkers">
+              <p>ID : {{ workers.id }}</p>
+              <p>Name : {{ workers.name }}</p>
+              <p>Type : {{ workers.type }}</p>
+              <p>Availability : {{ workers.available }}</p>
+              <p>Weight : {{ workers.capacity }}</p>
+            </div>
+            <!-- <div class="p-col-2"></div>
+            <div class="p-col-5">
+              <h5>Packer Details</h5>
+              <p>ID : Picker #1</p>
+              <p>Name : Picxkerrr</p>
+              <p>Energy Level : 67%</p>
+              <p>Status :</p>
+              <p>Weight Capacity : 1000</p>
+            </div> -->
+          </div>
+          <hr />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The Picker Details Modal -->
+  <div id="pickerDetails" class="modal">
+    <div class="modal-header-lg">
+      <span class="close" (click)="closePickerDetails()">&times;</span>
+      <h2>
+        Picker ID - #{{ workerDetails.id }} &nbsp;&nbsp;&nbsp;/
+        &nbsp;&nbsp;&nbsp; Picker Name - {{ workerDetails.name }}
+      </h2>
+    </div>
+
+    <!-- Modal content -->
+    <div class="modal-content-lg">
+      <div class="p-grid">
+        <div class="p-col-7">
+          <canvas id="pickerFloor" style="width: 100%; height: 100%;"></canvas>
+        </div>
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+          <h4>Order No - {{ orderNoForpicker }}</h4>
+          <h4>Packing Counter No - {{ packingCounerForPicker }}</h4>
+
+          <div class="p-grid">
+            <div class="p-col">
+              <h5>Picker Details</h5>
+              <p>
+                ID : <strong>{{ workerDetails.id }}</strong>
+              </p>
+              <p>
+                Name : <strong>{{ workerDetails.name }}</strong>
+              </p>
+              <!-- <p>Energy Level : 67%</p> -->
+              <p>
+                Availability : <strong>{{ workerDetails.available }}</strong>
+              </p>
+              <p>
+                Weight Capacity : <strong>{{ workerDetails.capacity }}</strong>
+              </p>
+              <p>
+                Age : <strong>{{ workerDetails.age }}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The Packer Details Modal -->
+  <div id="packerDetails" class="modal">
+    <div class="modal-header-lg">
+      <span class="close" (click)="closePackerDetails()">&times;</span>
+      <h2>
+        Picking Counter - {{ workerDetails.id }} &nbsp;&nbsp;&nbsp;/
+        &nbsp;&nbsp;&nbsp; Packer Name - {{ workerDetails.name }}
+      </h2>
+    </div>
+
+    <!-- Modal content -->
+    <div class="modal-content-lg">
+      <div class="p-grid">
+        <div class="p-col-7">
+          <h3>Assigned Queued Order List for Packing</h3>
+          <div class="orderListModal">
+            <p-card *ngFor="let tasks of packerTasks">
+              {{ tasks.orderId }}
+            </p-card>
+          </div>
+        </div>
+        <div class="p-col-1"></div>
+        <div class="p-col-4">
+          <h4>Order No - {{ orderNoForpicker }}</h4>
+          <h4>Packing Counter No - {{ packingCounerForPicker }}</h4>
+
+          <div class="p-grid">
+            <div class="p-col">
+              <h5>Picker Details</h5>
+              <p>
+                ID : <strong>{{ workerDetails.id }}</strong>
+              </p>
+              <p>
+                Name : <strong>{{ workerDetails.name }}</strong>
+              </p>
+              <!-- <p>Energy Level : 67%</p> -->
+              <p>
+                Availability : <strong>{{ workerDetails.available }}</strong>
+              </p>
+              <p>
+                Weight Capacity : <strong>{{ workerDetails.capacity }}</strong>
+              </p>
+              <p>
+                Age : <strong>{{ workerDetails.age }}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floor Plan Modal -->
+  <div id="floorPlanModal" class="modalMapviewxlg">
+    <div class="modal-header-modalMapviewxlg">
+      <div style="position: relative; float: right; z-index: 9;">
+        <img src="assets/images/error.png" (click)="closeFloorPlan()" />
+        <!-- <button
+            style="align-content: right;"
+            mat-icon-button
+            class="ref-btn"
+            title="Close"
+            (click)="closeMapModal()"
+          >
+            <img src="assets/images/error.png" />
+          </button> -->
+      </div>
+    </div>
+    <div class="modal-content-modalMapviewxlg">
+      <!-- <div id="floorPlan" style="width: 100%; height: 100%;"></div> -->
+      <canvas id="floorPlan" style="width: 100%; height: 100%;"></canvas>
+    </div>
+  </div>
+  <!-- ---------------------------- -->
+
+  <!-- The Chart Modal -->
+  <!-- <div id="chart" class="modal">
+    <div class="modal-header-lg">
+      <span class="close" (click)="closeChart()">&times;</span>
+      <h2>
+        Overall Performance
+      </h2>
+    </div>
+
+    <div class="modal-content-lg">
+      <div style="width: 100%; height: 100%; overflow-x: scroll;">
+        <canvas
+          id="lineOverallPerformanceChart"
+          style="height: 100%; width: 100%; overflow-x: scroll;"
+        ></canvas>
+      </div>
+    </div>
+  </div> -->
+
+  <div id="chart" class="modalMapviewxlg">
+    <div class="modal-header-modalMapviewxlg">
+      <div style="position: relative; float: right; z-index: 9;">
+        <img src="assets/images/error.png" (click)="closeChart()" />
+      </div>
+    </div>
+    <div class="modal-content-modalMapviewxlg">
+      <div id="floorPlan" style="width: 100%; height: 100%;background-color: white;">
+        <canvas
+        id="lineOverallPerformanceChart"
+        style="height: 100%; width: 100%; overflow-x: scroll;"
+      ></canvas>
+      </div>
+    </div>
+  </div>
+</div>
