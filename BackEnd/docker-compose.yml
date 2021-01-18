@@ -1,0 +1,98 @@
+version: "3"
+services:
+  order-generator-db:
+    image: mongo
+    ports:
+      - "0.0.0.0:27017:27017"
+    container_name: order-generator-db
+  order-management-db:
+    image: mongo
+    ports:
+      - "0.0.0.0:27018:27017"
+    container_name: order-management-db
+  simulation-db:
+    image: mysql:latest
+    container_name: simulation-db
+    ports:
+      - 3306:3306
+    volumes:
+      - ./DB/simulation_db.sql:/docker-entrypoint-initdb.d/dump.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: simulation_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+  worker-db:
+    image: mysql:latest
+    container_name: worker-db
+    ports:
+      - 3307:3306
+    volumes:
+      - ./DB/worker_db.sql:/docker-entrypoint-initdb.d/dump.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: worker_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+  clock-service:
+      container_name: clock-service
+      build:
+        context: ./services/clock-service
+        dockerfile: Dockerfile
+      image: demigods/clock-service:latest
+  order-generator-service:
+      container_name: order-generator-service
+      build:
+        context: ./services/order-generator-service
+        dockerfile: Dockerfile
+      image: demigods/order-generator-service:latest
+      ports:
+        - "8081:8080"
+      depends_on:
+        - order-generator-db
+        - clock-service
+        - simulation-service
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://simulation-service:10001"]
+        interval: 10s
+        timeout: 10s
+        retries: 5
+  order-management-service:
+    container_name: order-management-service
+    build:
+      context: ./services/order-management-service
+      dockerfile: Dockerfile
+    image: demigods/order-management-service:latest
+    ports:
+      - "8082:8080"
+    depends_on:
+      - order-management-db
+      - order-generator-service
+      - worker-service
+      - simulation-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://order-generator-service:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  simulation-service:
+    container_name: simulation-service
+    build:
+      context: ./services/simulation-service
+      dockerfile: Dockerfile
+    image: demigods/simulation-service:latest
+    ports:
+      - "8083:10001"
+    depends_on:
+      - simulation-db
+  worker-service:
+    container_name: worker-service
+    build:
+      context: ./services/worker-service
+      dockerfile: Dockerfile
+    image: demigods/worker-service:latest
+    ports:
+      - "8085:10003"
+    depends_on:
+      - worker-db
+      - simulation-service
