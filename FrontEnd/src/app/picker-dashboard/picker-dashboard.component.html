@@ -1,0 +1,49 @@
+<app-top-bar></app-top-bar>
+<app-loading-mask *ngIf="loadingMask"></app-loading-mask>
+
+<div class="container">
+  <p-toast position="top-right"></p-toast>
+  <h2 class="headerText">Picker - Dashboard</h2>
+
+  <div class="content">
+    <div class="p-grid">
+      <div class="p-col">
+        <h4 class="contentHeaders" style="color: white;">
+          Picker ID - {{ pickerID }}
+        </h4>
+      </div>
+      <div class="p-col">
+        <h4 class="contentHeaders" style="color: white;">
+          Picker Name - {{ currentUser.name }}
+        </h4>
+      </div>
+    </div>
+    <div class="p-grid">
+      <div class="p-col-1"></div>
+      <div class="p-col-6" style="border: 1px solid white;">
+        <canvas id="pickerFloor" style="width: 100%; height: 100%;"></canvas>
+      </div>
+      <div class="p-col-4">
+        <h3 class="contentHeaders" style="color: white;">
+          Order List Items
+        </h3>
+        <div class="orderListModal">
+          <p style="color: white;">
+            Order ID - <strong>{{ currentOrder.id }}</strong>
+          </p>
+          <p style="color: white;">
+            Parcel Counter - <strong>{{ currentPackingStation }}</strong>
+          </p>
+          <hr />
+          <h4 style="color: white;">Items</h4>
+          <p *ngFor="let item of currentItemList" style="color: white;">
+            Name - {{ item.product.name }} | Location -
+            {{ item.product.location }}
+          </p>
+          <hr />
+        </div>
+      </div>
+      <div class="p-col-1"></div>
+    </div>
+  </div>
+</div>

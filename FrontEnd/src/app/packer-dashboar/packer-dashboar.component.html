@@ -1,0 +1,47 @@
+<app-top-bar></app-top-bar>
+<app-loading-mask *ngIf="loadingMask"></app-loading-mask>
+
+<div class="container">
+  <p-toast position="top-right"></p-toast>
+  <h2 class="headerText">Packer - Dashboard</h2>
+
+  <div class="content">
+    <div class="p-grid">
+      <div class="p-col">
+        <h4 class="contentHeaders" style="color: white;">Packing Counter - {{currentPackingStation}}</h4>
+      </div>
+      <div class="p-col">
+        <h4 class="contentHeaders" style="color: white;">
+          Packer Name - {{ currentUser.name }}
+        </h4>
+      </div>
+    </div>
+    <div class="p-grid">
+      <div class="p-col-1"></div>
+      <div class="p-col-5">
+        <h3 class="contentHeaders" style="color: white;">
+          Assigned Queued List
+        </h3>
+
+        <div class="orderListModal">
+          <p-card *ngFor="let tasks of packerTasks">
+            Order ID - <strong>{{ tasks.orderId }}</strong>
+          </p-card>
+        </div>
+      </div>
+      <div class="p-col-5">
+        <h3 class="contentHeaders" style="color: white;">
+          Current Packing Order
+        </h3>
+        <div class="orderListModal">
+          <p style="color: white;">Order ID - <strong>{{currentOrder.id}}</strong></p>
+          <hr>
+          <h4 style="color: white;">Items</h4>
+          <p *ngFor="let item of currentItemList" style="color: white;">Name - {{item.product.name}} | Location - {{item.product.location}}</p>
+          <hr>
+        </div>
+      </div>
+      <div class="p-col-1"></div>
+    </div>
+  </div>
+</div>
